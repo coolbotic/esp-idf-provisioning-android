@@ -13,7 +13,7 @@
 // limitations under the License.
 
 package com.espressif.provisioning;
-
+import android.util.Log;
 import com.espressif.provisioning.listeners.ResponseListener;
 import com.espressif.provisioning.security.Security;
 import com.espressif.provisioning.transport.Transport;
