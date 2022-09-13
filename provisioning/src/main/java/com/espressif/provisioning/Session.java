@@ -118,16 +118,16 @@ public class Session {
     }
 
     public void sendDataToDevice(final String path, byte[] data, final ResponseListener listener) {
-
+        Log.d(TAG, "sendDataToDevice() function was called.");
         final byte[] encryptedData = security.encrypt(data);
 
         if (isSessionEstablished) {
-
+            Log.d(TAG, "sendDataToDevice() - isSessionEstablished = true");
             transport.sendConfigData(path, encryptedData, new ResponseListener() {
 
                 @Override
                 public void onSuccess(byte[] returnData) {
-
+                    Log.d(TAG, "sendDataToDevice() - onSuccess callback");
                     byte[] decryptedData = security.decrypt(returnData);
                     if (listener != null) {
                         listener.onSuccess(decryptedData);
@@ -136,6 +136,7 @@ public class Session {
 
                 @Override
                 public void onFailure(Exception e) {
+                    Log.d(TAG, "sendDataToDevice() - onFailure callback");
                     isSessionEstablished = false;
                     if (listener != null) {
                         listener.onFailure(e);
@@ -144,7 +145,7 @@ public class Session {
             });
 
         } else {
-
+            Log.d(TAG, "sendDataToDevice() - isSessionEstablished = false");
             init(null, new SessionListener() {
 
                 @Override
