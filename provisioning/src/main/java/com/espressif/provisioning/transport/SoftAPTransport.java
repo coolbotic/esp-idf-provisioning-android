@@ -62,6 +62,7 @@ public class SoftAPTransport implements Transport {
     }
 
     private byte[] sendPostRequest(String path, byte[] data, final ResponseListener listener) {
+        Log.d(TAG, "sendPostRequest() was called.");
         byte[] responseBytes = null;
         try {
             URL url = new URL("http://" + baseUrl + "/" + path);
@@ -74,7 +75,7 @@ public class SoftAPTransport implements Transport {
             urlConnection.setConnectTimeout(5000);
 
             if (cookieManager.getCookieStore().getCookies().size() > 0) {
-
+                Log.d(TAG, "sendConfigData() cookie manager");
                 Log.d(TAG, "Cookie - Name : " + cookieManager.getCookieStore().getCookies().get(0).getName());
                 Log.d(TAG, "Cookie - Value : " + cookieManager.getCookieStore().getCookies().get(0).getValue());
                 // While joining the Cookies, use ',' or ';' as needed. Most of the servers are using ';'
@@ -101,6 +102,7 @@ public class SoftAPTransport implements Transport {
             }
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
+                Log.d(TAG, "sendConfigData() HTTP responseCode was OK.");
                 int n;
                 byte[] byteChunk = new byte[4096];
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -123,7 +125,7 @@ public class SoftAPTransport implements Transport {
             e.printStackTrace();
             listener.onFailure(new RuntimeException("Error ! Connection Lost"));
         }
-
+        Log.d(TAG, "sendConfigData() returning response bytes");
         return responseBytes;
     }
 
@@ -135,14 +137,17 @@ public class SoftAPTransport implements Transport {
      */
     @Override
     public void sendConfigData(final String path, final byte[] data, final ResponseListener listener) {
+        Log.d(TAG, "sendConfigData() called.");
         this.workerThreadPool
                 .submit(new Runnable() {
                     @Override
                     public void run() {
+                        Log.d(TAG, "sendConfigData() callback run() was called.");
                         try {
                             byte[] returnData = sendPostRequest(path, data, listener);
                             listener.onSuccess(returnData);
                         } catch (Exception e) {
+                            Log.d(TAG, "sendConfigData() callback run() had a failure");
                             listener.onFailure(e);
                         }
                     }
