@@ -782,19 +782,19 @@ public class ESPDevice {
     }
 
     private void pollForWifiConnectionStatus() {
-
+        Log.d(TAG, "Polling the ESP32 for Wifi Connection Status");
         byte[] message = MessengeHelper.prepareGetWiFiConfigStatusMsg();
         session.sendDataToDevice(ESPConstants.HANDLER_PROV_CONFIG, message, new ResponseListener() {
 
             @Override
             public void onSuccess(byte[] returnData) {
-
+                Log.d(TAG, "Wifi Polling onSuccess() callback");
                 Object[] statuses = processProvisioningStatusResponse(returnData);
                 WifiConstants.WifiStationState wifiStationState = (WifiConstants.WifiStationState) statuses[0];
                 WifiConstants.WifiConnectFailedReason failedReason = (WifiConstants.WifiConnectFailedReason) statuses[1];
 
                 if (wifiStationState == WifiConstants.WifiStationState.Connected) {
-
+                    Log.d(TAG, "Reported Wifi state - Connected");
                     // Provision success
                     if (provisionListener != null) {
                         provisionListener.deviceProvisioningSuccess();
@@ -803,7 +803,7 @@ public class ESPDevice {
                     disableOnlyWifiNetwork();
 
                 } else if (wifiStationState == WifiConstants.WifiStationState.Disconnected) {
-
+                    Log.d(TAG, "Reported Wifi state - Disconnected");
                     // Device disconnected but Provision may got success / failure
                     if (provisionListener != null) {
                         provisionListener.provisioningFailedFromDevice(ESPConstants.ProvisionFailureReason.DEVICE_DISCONNECTED);
@@ -812,18 +812,19 @@ public class ESPDevice {
                     disableOnlyWifiNetwork();
 
                 } else if (wifiStationState == WifiConstants.WifiStationState.Connecting) {
-
+                    Log.d(TAG, "Reported Wifi state - Connecting");
                     try {
                         sleep(5000);
                         pollForWifiConnectionStatus();
                     } catch (InterruptedException e) {
+                        Log.d(TAG, "Failed to poll for wifi connection state");
                         e.printStackTrace();
                         session = null;
                         disableOnlyWifiNetwork();
                         provisionListener.onProvisioningFailed(new RuntimeException("Provisioning Failed"));
                     }
                 } else {
-
+                    Log.d(TAG, "Reported Wifi state - Failed");
                     if (failedReason == WifiConstants.WifiConnectFailedReason.AuthError) {
 
                         provisionListener.provisioningFailedFromDevice(ESPConstants.ProvisionFailureReason.AUTH_FAILED);
@@ -842,6 +843,7 @@ public class ESPDevice {
 
             @Override
             public void onFailure(Exception e) {
+                Log.d(TAG, "Wifi Polling onFailure() callback");
                 e.printStackTrace();
                 disableOnlyWifiNetwork();
                 provisionListener.onProvisioningFailed(new RuntimeException("Provisioning Failed"));
