@@ -73,6 +73,7 @@ public class SoftAPTransport implements Transport {
             urlConnection.setRequestProperty("Accept", "text/plain");
             urlConnection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
             urlConnection.setConnectTimeout(5000);
+            urlConnection.setReadTimeout(10000);
 
             if (cookieManager.getCookieStore().getCookies().size() > 0) {
                 Log.d(TAG, "sendPostRequest() cookie manager");
