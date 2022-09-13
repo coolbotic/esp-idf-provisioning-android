@@ -75,30 +75,40 @@ public class SoftAPTransport implements Transport {
             urlConnection.setConnectTimeout(5000);
 
             if (cookieManager.getCookieStore().getCookies().size() > 0) {
-                Log.d(TAG, "sendConfigData() cookie manager");
+                Log.d(TAG, "sendPostRequest() cookie manager");
                 Log.d(TAG, "Cookie - Name : " + cookieManager.getCookieStore().getCookies().get(0).getName());
                 Log.d(TAG, "Cookie - Value : " + cookieManager.getCookieStore().getCookies().get(0).getValue());
                 // While joining the Cookies, use ',' or ';' as needed. Most of the servers are using ';'
+                Log.d(TAG, "sendPostRequest() set request property");
                 urlConnection.setRequestProperty(COOKIE_HEADER,
                         TextUtils.join(";", cookieManager.getCookieStore().getCookies()));
             }
 
+            Log.d(TAG, "sendPostRequest() getting output stream");
             OutputStream os = urlConnection.getOutputStream();
+            Log.d(TAG, "sendPostRequest() OS write data");
             os.write(data);
+            Log.d(TAG, "sendPostRequest() OS close");
             os.close();
 
+            Log.d(TAG, "sendPostRequest() getResponseCode");
             int responseCode = urlConnection.getResponseCode();
+            Log.d(TAG, "sendPostRequest() getHeaderFields");
             Map<String, List<String>> headerFields = urlConnection.getHeaderFields();
+            Log.d(TAG, "sendPostRequest() headerFields for cookie header");
             List<String> cookiesHeader = headerFields.get(SET_COOKIE_HEADER);
 
             if (cookiesHeader != null) {
+                Log.d(TAG, "sendConfigData() cookie header is not null");
                 for (String cookie : cookiesHeader) {
+                    Log.d(TAG, "sendConfigData() cookie header for run");
                     HttpCookie httpCookie = HttpCookie.parse(cookie).get(0);
                     // Default version of HttpCookie is 1. In version 1, quotes will be added.
                     // So set version 0 so that quotes will not be added.
                     httpCookie.setVersion(0);
                     cookieManager.getCookieStore().add(null, httpCookie);
                 }
+                Log.d(TAG, "sendConfigData() cookie header leaving if statement");
             }
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -108,10 +118,12 @@ public class SoftAPTransport implements Transport {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 InputStream is = urlConnection.getInputStream();
                 while ((n = is.read(byteChunk)) > 0) {
+                    Log.d(TAG, "sendConfigData() response code while loop run");
                     outputStream.write(byteChunk, 0, n);
                 }
                 responseBytes = outputStream.toByteArray();
             }
+            Log.d(TAG, "sendConfigData() Pre catch handling");
         } catch (MalformedURLException e) {
             Log.e(TAG, e.getMessage());
             e.printStackTrace();
@@ -145,6 +157,7 @@ public class SoftAPTransport implements Transport {
                         Log.d(TAG, "sendConfigData() callback run() was called.");
                         try {
                             byte[] returnData = sendPostRequest(path, data, listener);
+                            Log.d(TAG, "sendConfigData() callback onSuccess called.");
                             listener.onSuccess(returnData);
                         } catch (Exception e) {
                             Log.d(TAG, "sendConfigData() callback run() had a failure");
